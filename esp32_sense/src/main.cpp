@@ -169,29 +169,19 @@ void setup()
 
 void loop()
 {
-  // Camera & SD available, start taking pictures
-  if (camera_sign && sd_sign)
+  if (!camera_sign || !sd_sign)
   {
-    String command;
-    // Read incoming commands from serial monitor
-    while (Serial.available())
-    {
-      char c = Serial.read();
-      if ((c != '\n') && (c != '\r'))
-      {
-        command.concat(c);
-      }
-      else if (c == '\n')
-      {
-        commandRecv = true;
-        command.toLowerCase();
-      }
-    }
+    return; // Exit early if camera or SD card is not available
+  }
 
-    // If command = "capture", take a picture and save it to the SD card
-    if (commandRecv && command == "c")
+  if (Serial.available())
+  {
+    String command = Serial.readStringUntil('\n');
+    command.trim();
+    command.toLowerCase();
+
+    if (command == "c")
     {
-      commandRecv = false;
       Serial.println("\nPicture Capture Command is sent");
       char filename[32];
       sprintf(filename, "/image%d.jpg", imageCount);
