@@ -125,7 +125,6 @@ void setup()
     Serial.printf("Camera init failed with error 0x%x", err);
     return;
   }
-
   camera_sign = true; // Camera initialization check passes
 
   // Initialize SD card
@@ -142,29 +141,9 @@ void setup()
     Serial.println("No SD card attached");
     return;
   }
-
-  Serial.print("SD Card Type: ");
-  if (cardType == CARD_MMC)
-  {
-    Serial.println("MMC");
-  }
-  else if (cardType == CARD_SD)
-  {
-    Serial.println("SDSC");
-  }
-  else if (cardType == CARD_SDHC)
-  {
-    Serial.println("SDHC");
-  }
-  else
-  {
-    Serial.println("UNKNOWN");
-  }
-
   sd_sign = true; // sd initialization check passes
 
-  Serial.println("XIAO ESP32S3 Sense Camera Image Capture");
-  Serial.println("Send 'c' to initiates an image capture\n");
+  Serial.println("camera ready");
 }
 
 void loop()
