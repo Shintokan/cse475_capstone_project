@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "esp32_s3_devkitc",
+			"path": "../../esp32_s3_devkitc"
+		},
+		{
+			"name": "esp32_sense",
+			"path": ".."
+		}
+	],
+	"settings": {}
+}

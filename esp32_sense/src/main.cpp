@@ -85,7 +85,7 @@ void setup()
   config.pin_pwdn = PWDN_GPIO_NUM;
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 20000000;
-  config.frame_size = FRAMESIZE_UXGA;
+  config.frame_size = FRAMESIZE_VGA;
   config.pixel_format = PIXFORMAT_JPEG; // for streaming
   config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
   config.fb_location = CAMERA_FB_IN_PSRAM;
@@ -152,22 +152,28 @@ void loop()
   {
     return; // Exit early if camera or SD card is not available
   }
+  char filename[32];
+  sprintf(filename, "/image%d.jpg", imageCount);
+  photo_save(filename);
+  imageCount++;
+  Serial.println("picture taken and saved");
+  delay(1000);
 
-  if (Serial.available())
-  {
-    String command = Serial.readStringUntil('\n');
-    command.trim();
-    command.toLowerCase();
+  // if (Serial.available())
+  // {
+  //   String command = Serial.readStringUntil('\n');
+  //   command.trim();
+  //   command.toLowerCase();
 
-    if (command == "c")
-    {
-      Serial.println("\nPicture Capture Command is sent");
-      char filename[32];
-      sprintf(filename, "/image%d.jpg", imageCount);
-      photo_save(filename);
-      Serial.printf("Saved picture：%s\n", filename);
-      Serial.println("");
-      imageCount++;
-    }
-  }
+  //   if (command == "c")
+  //   {
+  //     Serial.println("\nPicture Capture Command is sent");
+  //     char filename[32];
+  //     sprintf(filename, "/image%d.jpg", imageCount);
+  //     photo_save(filename);
+  //     Serial.printf("Saved picture：%s\n", filename);
+  //     Serial.println("");
+  //     imageCount++;
+  //   }
+  // }
 }
