@@ -14,8 +14,8 @@ void writeFile(fs::FS &fs, const char *path, uint8_t *data, size_t len);
 unsigned long lastCaptureTime = 0; // Last shooting time
 int imageCount = 1;                // File Counter
 bool camera_sign = false;          // Check camera status
-bool sd_sign = false;              // Check sd status
-bool commandRecv = false;          // flag used for indicating receipt of commands from serial port
+// bool sd_sign = false;              // Check sd status
+bool commandRecv = false; // flag used for indicating receipt of commands from serial port
 bool captureFlag = false;
 
 // Save pictures to SD card
@@ -128,28 +128,28 @@ void setup()
   }
   camera_sign = true; // Camera initialization check passes
 
-  // Initialize SD card
-  if (!SD.begin(21))
-  {
-    Serial.println("Card Mount Failed");
-    return;
-  }
-  uint8_t cardType = SD.cardType();
+  // // Initialize SD card
+  // if (!SD.begin(21))
+  // {
+  //   Serial.println("Card Mount Failed");
+  //   return;
+  // }
+  // uint8_t cardType = SD.cardType();
 
-  // Determine if the type of SD card is available
-  if (cardType == CARD_NONE)
-  {
-    Serial.println("No SD card attached");
-    return;
-  }
-  sd_sign = true; // sd initialization check passes
+  // // Determine if the type of SD card is available
+  // if (cardType == CARD_NONE)
+  // {
+  //   Serial.println("No SD card attached");
+  //   return;
+  // }
+  // sd_sign = true; // sd initialization check passes
 
-  Serial.println("camera ready");
+  // Serial.println("camera ready");
 }
 
 void loop()
 {
-  if (!camera_sign || !sd_sign)
+  if (!camera_sign)
   {
     return; // Exit early if camera or SD card is not available
   }
