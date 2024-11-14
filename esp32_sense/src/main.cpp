@@ -6,6 +6,7 @@
 #define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
 
 #include "camera_pins.h"
+#include <haptic-cane-new-model_inferencing.h>
 
 // function declarations
 void photo_save(const char *fileName);
