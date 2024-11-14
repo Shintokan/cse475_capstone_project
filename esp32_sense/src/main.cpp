@@ -159,22 +159,4 @@ void loop()
   imageCount++;
   Serial.println("picture taken and saved");
   delay(1000);
-
-  // if (Serial.available())
-  // {
-  //   String command = Serial.readStringUntil('\n');
-  //   command.trim();
-  //   command.toLowerCase();
-
-  //   if (command == "c")
-  //   {
-  //     Serial.println("\nPicture Capture Command is sent");
-  //     char filename[32];
-  //     sprintf(filename, "/image%d.jpg", imageCount);
-  //     photo_save(filename);
-  //     Serial.printf("Saved picture：%s\n", filename);
-  //     Serial.println("");
-  //     imageCount++;
-  //   }
-  // }
 }
