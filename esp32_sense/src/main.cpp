@@ -6,9 +6,6 @@
 #define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
 #include "camera_pins.h"
 
-// Select camera model - find more camera models in camera_pins.h file here
-// https://github.com/espressif/arduino-esp32/blob/master/libraries/ESP32/examples/Camera/CameraWebServer/camera_pins.h
-
 /* Constant defines -------------------------------------------------------- */
 #define EI_CAMERA_RAW_FRAME_BUFFER_COLS 320
 #define EI_CAMERA_RAW_FRAME_BUFFER_ROWS 240
@@ -133,7 +130,8 @@ void loop()
         free(snapshot_buf);
         return;
       }
-
+      // print few pixels to make sure captued image is not empty
+      ei_printf("First few pixels: %d, %d, %d\r\n", snapshot_buf[0], snapshot_buf[1], snapshot_buf[2]);
       // Run the classifier
       ei_impulse_result_t result = {0};
 
@@ -149,49 +147,27 @@ void loop()
                 result.timing.dsp, result.timing.classification, result.timing.anomaly);
 
 #if EI_CLASSIFIER_OBJECT_DETECTION == 1
-      // bool bb_found = result.bounding_boxes[0].value > 0;
-      bool object_detected = false;
-      for (size_t ix = 0; ix < result.bounding_boxes_count; ix++)
+      ei_printf("Object detection bounding boxes:\r\n");
+      ei_printf("Number of bounding boxes: %d\r\n", result.bounding_boxes_count);
+      for (uint32_t i = 0; i < result.bounding_boxes_count; i++)
       {
-        auto bb = result.bounding_boxes[ix];
-        if (bb.value > 0.2)
+        ei_impulse_result_bounding_box_t bb = result.bounding_boxes[i];
+        ei_printf("  %s (%f) [ x: %u, y: %u, width: %u, height: %u ]\r\n", bb.label, bb.value, bb.x, bb.y, bb.width, bb.height);
+
+        if (bb.value == 0)
         {
-          // if (bb.value == 0)
-          // {
-          //   continue;
-          // }
-          object_detected = true;
-          ei_printf(" %s: %.5f\n", bb.label, bb.value);
+          continue;
         }
-        // ei_printf("    %s (%f) [ x: %u, y: %u, width: %u, height: %u ]\n", bb.label, bb.value, bb.x, bb.y, bb.width, bb.height);
-      }
-      if (!object_detected)
-      {
-        ei_printf("No objects found\n");
-      }
-#else
-      for (size_t ix = 0; ix < EI_CLASSIFIER_LABEL_COUNT; ix++)
-      {
-        ei_printf("    %s: %.5f\n", result.classification[ix].label,
-                  result.classification[ix].value);
+        ei_printf("  %s (%f) [ x: %u, y: %u, width: %u, height: %u ]\r\n",
+                  bb.label,
+                  bb.value,
+                  bb.x,
+                  bb.y,
+                  bb.width,
+                  bb.height);
       }
 #endif
-
-#if EI_CLASSIFIER_HAS_ANOMALY == 1
-      ei_printf("    anomaly score: %.3f\n", result.anomaly);
-#endif
-
       free(snapshot_buf);
-    }
-    else if (command == "q")
-    {
-      Serial.println("Exiting...");
-      while (1)
-        ; // Halt the program
-    }
-    else if (!command.isEmpty())
-    {
-      Serial.println("Invalid command. Enter 'c' to capture and run inference, or 'q' to quit.");
     }
   }
 }
