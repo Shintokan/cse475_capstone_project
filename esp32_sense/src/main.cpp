@@ -2,6 +2,7 @@
 #include <haptic-cane-new-model_inferencing.h>
 #include "edge-impulse-sdk/dsp/image/image.hpp"
 #include "esp_camera.h"
+#include <WiFi.h>
 
 #define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
 #include "camera_pins.h"
@@ -53,6 +54,8 @@ static camera_config_t camera_config = {
 bool ei_camera_init(void);
 void ei_camera_deinit(void);
 bool ei_camera_capture(uint32_t img_width, uint32_t img_height, uint8_t *out_buf);
+// camera server for feed
+void startCameraServer();
 
 static int ei_camera_get_data(size_t offset, size_t length, float *out_ptr)
 {
@@ -130,8 +133,10 @@ void loop()
         free(snapshot_buf);
         return;
       }
+
       // print few pixels to make sure captued image is not empty
       ei_printf("First few pixels: %d, %d, %d\r\n", snapshot_buf[0], snapshot_buf[1], snapshot_buf[2]);
+
       // Run the classifier
       ei_impulse_result_t result = {0};
 
@@ -149,6 +154,7 @@ void loop()
 #if EI_CLASSIFIER_OBJECT_DETECTION == 1
       ei_printf("Object detection bounding boxes:\r\n");
       ei_printf("Number of bounding boxes: %d\r\n", result.bounding_boxes_count);
+      // result.bounding_boxes_count
       for (uint32_t i = 0; i < result.bounding_boxes_count; i++)
       {
         ei_impulse_result_bounding_box_t bb = result.bounding_boxes[i];
