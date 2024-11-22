@@ -3,6 +3,14 @@
 #include "edge-impulse-sdk/dsp/image/image.hpp"
 #include "esp_camera.h"
 #include <WiFi.h>
+// CHANGE: adding in info for sd card
+#include "FS.h"
+#include "SD.h"
+#include "SPI.h"
+
+int imageCount = 1;       // File Counter
+bool camera_sign = false; // Check camera status
+bool sd_sign = false;     // Check sd status
 
 #define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
 #include "camera_pins.h"
@@ -54,8 +62,29 @@ static camera_config_t camera_config = {
 bool ei_camera_init(void);
 void ei_camera_deinit(void);
 bool ei_camera_capture(uint32_t img_width, uint32_t img_height, uint8_t *out_buf);
-// camera server for feed
-void startCameraServer();
+void writeFile(fs::FS &fs, const char *path, uint8_t *data, size_t len);
+
+// SD card write file
+void writeFile(fs::FS &fs, const char *path, uint8_t *data, size_t len)
+{
+  Serial.printf("Writing file: %s\n", path);
+
+  File file = fs.open(path, FILE_WRITE);
+  if (!file)
+  {
+    Serial.println("Failed to open file for writing");
+    return;
+  }
+  if (file.write(data, len) == len)
+  {
+    Serial.println("File written");
+  }
+  else
+  {
+    Serial.println("Write failed");
+  }
+  file.close();
+}
 
 static int ei_camera_get_data(size_t offset, size_t length, float *out_ptr)
 {
@@ -73,7 +102,8 @@ static int ei_camera_get_data(size_t offset, size_t length, float *out_ptr)
     pixel_ix += 3;
     pixels_left--;
   }
-  // and done!
+
+  // and done
   return 0;
 }
 
@@ -99,6 +129,14 @@ void setup()
 
   ei_printf("\nStarting continious inference in 2 seconds...\n");
   ei_sleep(2000);
+
+  // CHANGE: making sure sd card is initialized properly
+  if (!SD.begin(21))
+  {
+    Serial.println("SD card initialization failed!");
+    return;
+  }
+  Serial.println("SD card initialized successfully");
 }
 
 /**
@@ -248,6 +286,9 @@ bool ei_camera_capture(uint32_t img_width, uint32_t img_height, uint8_t *out_buf
     ei_printf("Camera capture failed\n");
     return false;
   }
+  const char *filePath = "/image.jpg";
+
+  writeFile(SD, filePath, fb->buf, fb->len);
 
   bool converted = fmt2rgb888(fb->buf, fb->len, PIXFORMAT_JPEG, snapshot_buf);
 
