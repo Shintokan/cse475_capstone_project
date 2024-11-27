@@ -193,6 +193,10 @@ void loop()
       ei_printf("Object detection bounding boxes:\r\n");
       ei_printf("Number of bounding boxes: %d\r\n", result.bounding_boxes_count);
       // result.bounding_boxes_count
+
+      const char *highest_confidence_label = NULL;
+      float highest_confidence = 0.0f;
+
       for (uint32_t i = 0; i < result.bounding_boxes_count; i++)
       {
         ei_impulse_result_bounding_box_t bb = result.bounding_boxes[i];
@@ -209,6 +213,20 @@ void loop()
                   bb.y,
                   bb.width,
                   bb.height);
+        if (bb.value > highest_confidence)
+        {
+          highest_confidence = bb.value;
+          highest_confidence_label = bb.label;
+        }
+      }
+      if (highest_confidence_label != NULL)
+      {
+        ei_printf("Object with highest confidence: %s (confidence: %f)\r\n",
+                  highest_confidence_label, highest_confidence);
+      }
+      else
+      {
+        ei_printf("No objects detected.\r\n");
       }
 #endif
       free(snapshot_buf);
