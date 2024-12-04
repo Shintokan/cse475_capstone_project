@@ -16,8 +16,8 @@ bool sd_sign = false;     // Check sd status
 #include "camera_pins.h"
 
 /* Constant defines -------------------------------------------------------- */
-#define EI_CAMERA_RAW_FRAME_BUFFER_COLS 320
-#define EI_CAMERA_RAW_FRAME_BUFFER_ROWS 240
+#define EI_CAMERA_RAW_FRAME_BUFFER_COLS 800
+#define EI_CAMERA_RAW_FRAME_BUFFER_ROWS 600
 #define EI_CAMERA_FRAME_BYTE_SIZE 3
 
 /* Private variables ------------------------------------------------------- */
@@ -50,12 +50,12 @@ static camera_config_t camera_config = {
     .ledc_channel = LEDC_CHANNEL_0,
 
     .pixel_format = PIXFORMAT_JPEG, // YUV422,GRAYSCALE,RGB565,JPEG
-    .frame_size = FRAMESIZE_QVGA,   // QQVGA-UXGA Do not use sizes above QVGA when not JPEG
+    .frame_size = FRAMESIZE_SVGA,   // QQVGA-UXGA Do not use sizes above QVGA when not JPEG
 
-    .jpeg_quality = 12, // 0-63 lower number means higher quality
-    .fb_count = 1,      // if more than one, i2s runs in continuous mode. Use only with JPEG
+    .jpeg_quality = 8, // 0-63 lower number means higher quality
+    .fb_count = 3,     // if more than one, i2s runs in continuous mode. Use only with JPEG
     .fb_location = CAMERA_FB_IN_PSRAM,
-    .grab_mode = CAMERA_GRAB_WHEN_EMPTY,
+    .grab_mode = CAMERA_GRAB_LATEST,
 };
 
 /* Function definitions ------------------------------------------------------- */
@@ -306,7 +306,7 @@ bool ei_camera_capture(uint32_t img_width, uint32_t img_height, uint8_t *out_buf
   }
 
   char filename[32];
-  sprintf(filename, "image%d.jpg", imageCount);
+  sprintf(filename, "/image%d.jpg", imageCount);
   writeFile(SD, filename, fb->buf, fb->len);
   imageCount++;
 
