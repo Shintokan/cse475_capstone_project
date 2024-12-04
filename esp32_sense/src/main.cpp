@@ -1,5 +1,5 @@
 /* Includes ---------------------------------------------------------------- */
-#include <haptic-cane-new-model_inferencing.h>
+#include <haptic-cane-v3-model_inferencing.h>
 #include "edge-impulse-sdk/dsp/image/image.hpp"
 #include "esp_camera.h"
 #include <WiFi.h>
@@ -175,11 +175,6 @@ void loop()
       // print few pixels to make sure captued image is not empty
       ei_printf("First few pixels: %d, %d, %d\r\n", snapshot_buf[0], snapshot_buf[1], snapshot_buf[2]);
 
-      char filename[20];
-      sprintf(filename, "/image%d.jpg", imageCount);
-      writeFile(SD, filename, snapshot_buf, EI_CLASSIFIER_INPUT_WIDTH * EI_CLASSIFIER_INPUT_HEIGHT * 3);
-      imageCount++;
-
       // Run the classifier
       ei_impulse_result_t result = {0};
 
@@ -309,9 +304,11 @@ bool ei_camera_capture(uint32_t img_width, uint32_t img_height, uint8_t *out_buf
     ei_printf("Camera capture failed\n");
     return false;
   }
-  // const char *filePath = "/image.jpg";
 
-  // writeFile(SD, filePath, fb->buf, fb->len);
+  char filename[32];
+  sprintf(filename, "/image%d.jpg", imageCount);
+  writeFile(SD, filename, fb->buf, fb->len);
+  imageCount++;
 
   bool converted = fmt2rgb888(fb->buf, fb->len, PIXFORMAT_JPEG, snapshot_buf);
 
