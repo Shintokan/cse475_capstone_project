@@ -306,7 +306,7 @@ bool ei_camera_capture(uint32_t img_width, uint32_t img_height, uint8_t *out_buf
   }
 
   char filename[32];
-  sprintf(filename, "/image%d.jpg", imageCount);
+  sprintf(filename, "image%d.jpg", imageCount);
   writeFile(SD, filename, fb->buf, fb->len);
   imageCount++;
 
