@@ -1,5 +1,6 @@
 /* Includes ---------------------------------------------------------------- */
 #include <haptic-cane-v3-model_inferencing.h>
+#include <HardwareSerial.h>
 #include "edge-impulse-sdk/dsp/image/image.hpp"
 #include "esp_camera.h"
 #include <WiFi.h>
@@ -24,6 +25,9 @@ bool sd_sign = false;     // Check sd status
 static bool debug_nn = false; // Set this to true to see e.g. features generated from the raw signal
 static bool is_initialised = false;
 uint8_t *snapshot_buf; // points to the output of the capture
+
+// UART communication
+HardwareSerial mainSerial(1);
 
 static camera_config_t camera_config = {
     .pin_pwdn = PWDN_GPIO_NUM,
@@ -113,10 +117,10 @@ static int ei_camera_get_data(size_t offset, size_t length, float *out_ptr)
 void setup()
 {
   // put your setup code here, to run once:
-  Serial.begin(115200);
+  // Serial.begin(115200);
+  mainSerial.begin(115200, SERIAL_8N1, 44, 43);
   // comment out the below line to start inference immediately after upload
-  while (!Serial)
-    ;
+  // while (!Serial);
   Serial.println("Edge Impulse Inferencing Demo");
   if (ei_camera_init() == false)
   {
@@ -146,11 +150,16 @@ void setup()
  */
 void loop()
 {
-  if (Serial.available())
+  // if (Serial.available())
+  // {
+  //   String command = Serial.readStringUntil('\n');
+  //   command.trim();
+  //   if (command == "c")
+  if (mainSerial.available())
   {
-    String command = Serial.readStringUntil('\n');
-    command.trim();
-    if (command == "c")
+    char signal = mainSerial.read();
+    if (signal == '1')
+
     {
       snapshot_buf = (uint8_t *)malloc(EI_CAMERA_RAW_FRAME_BUFFER_COLS * EI_CAMERA_RAW_FRAME_BUFFER_ROWS * EI_CAMERA_FRAME_BYTE_SIZE);
 
@@ -223,10 +232,31 @@ void loop()
       {
         ei_printf("Object with highest confidence: %s (confidence: %f)\r\n",
                   highest_confidence_label, highest_confidence);
+        if (highest_confidence_label == "person")
+        {
+          mainSerial.write(1);
+        }
+        else if (highest_confidence_label == "chair")
+        {
+          mainSerial.write(2);
+        }
+        else if (highest_confidence_label == "desk")
+        {
+          mainSerial.write(3);
+        }
+        else if (highest_confidence_label == "occupied_chair")
+        {
+          mainSerial.write(4);
+        }
+        else if (highest_confidence_label == "door")
+        {
+          mainSerial.write(5);
+        }
       }
       else
       {
         ei_printf("No objects detected.\r\n");
+        mainSerial.write(0);
       }
 #endif
       free(snapshot_buf);
