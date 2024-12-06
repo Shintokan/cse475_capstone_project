@@ -1,5 +1,5 @@
 /* Includes ---------------------------------------------------------------- */
-#include <haptic-cane-v3-model_inferencing.h>
+#include <last-version-model_inferencing.h>
 #include <HardwareSerial.h>
 #include "edge-impulse-sdk/dsp/image/image.hpp"
 #include "esp_camera.h"
@@ -56,10 +56,10 @@ static camera_config_t camera_config = {
     .pixel_format = PIXFORMAT_JPEG, // YUV422,GRAYSCALE,RGB565,JPEG
     .frame_size = FRAMESIZE_SVGA,   // QQVGA-UXGA Do not use sizes above QVGA when not JPEG
 
-    .jpeg_quality = 8, // 0-63 lower number means higher quality
-    .fb_count = 3,     // if more than one, i2s runs in continuous mode. Use only with JPEG
+    .jpeg_quality = 10, // 0-63 lower number means higher quality
+    .fb_count = 1,      // if more than one, i2s runs in continuous mode. Use only with JPEG
     .fb_location = CAMERA_FB_IN_PSRAM,
-    .grab_mode = CAMERA_GRAB_LATEST,
+    .grab_mode = CAMERA_GRAB_WHEN_EMPTY,
 };
 
 /* Function definitions ------------------------------------------------------- */
@@ -117,10 +117,12 @@ static int ei_camera_get_data(size_t offset, size_t length, float *out_ptr)
 void setup()
 {
   // put your setup code here, to run once:
-  // Serial.begin(115200);
+  Serial.begin(115200);
   mainSerial.begin(115200, SERIAL_8N1, 44, 43);
   // comment out the below line to start inference immediately after upload
-  // while (!Serial);
+  // while (!Serial)
+  //   ;
+
   Serial.println("Edge Impulse Inferencing Demo");
   if (ei_camera_init() == false)
   {
@@ -159,7 +161,6 @@ void loop()
   {
     char signal = mainSerial.read();
     if (signal == '1')
-
     {
       snapshot_buf = (uint8_t *)malloc(EI_CAMERA_RAW_FRAME_BUFFER_COLS * EI_CAMERA_RAW_FRAME_BUFFER_ROWS * EI_CAMERA_FRAME_BYTE_SIZE);
 
